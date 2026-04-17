@@ -1,0 +1,38 @@
+name: Build & Push DEV Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  docker-dev:
+    name: Build & Push users:dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Git commit and build date
+        run: |
+          echo "GIT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg GIT_COMMIT=${GIT_COMMIT} \
+            --build-arg BUILD_DATE=${BUILD_DATE} \
+            -t amyerp/users:dev \
+            .
+
+      - name: Login to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      - name: Push image
+        run: |
+          docker push amyerp/users:dev
