@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  users:
+    image: test:latest
+    container_name: users
+    ports:
+      - "5300:5300"
+    environment:
+      - GO_ENV=dev
+
+      # Enable or disable admin API
+      - MICROSERVICES_USERS_ADMIN=false
+
+      # Enable or disable local cron (admin/config level)
+      - MICROSERVICES_USERS_CRON=false
+
+      # Heartbeat interval in seconds
+      - SERVER_HEARTBEAT=10
+      - SECURITY_MODE=sign
+      - SERVER_SIGN=123
+      #GUFO GRPC host and port
+      - SERVER_INTERNAL_HOST=gufo-gateway
+      - SERVER_PORT=4890

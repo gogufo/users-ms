@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${K8S_APP_NAME}
+  labels:
+    app: ${K8S_APP_NAME}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${K8S_APP_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${K8S_APP_NAME}
+    spec:
+      imagePullSecrets:
+        - name: regcred
+
+      containers:
+        - name: ${K8S_APP_NAME}
+          image: ${IMAGE_NAME}:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: grpc
+              containerPort: 5300
+
+          readinessProbe:
+            tcpSocket:
+              port: 5300
+            initialDelaySeconds: 3
+            periodSeconds: 5
+
+          livenessProbe:
+            tcpSocket:
+              port: 5300
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          env:
+            - name: GO_ENV
+              value: "${GO_ENV}"
+
+            - name: MICROSERVICES_${SERVICE_NAME_UPPER}_ADMIN
+              value: "${SERVICE_ADMIN}"
+
+            - name: MICROSERVICES_${SERVICE_NAME_UPPER}_CRON
+              value: "${SERVICE_CRON}"
+
+            - name: SERVER_HEARTBEAT
+              value: "${SERVER_HEARTBEAT}"
+
+            - name: SECURITY_MODE
+              value: "${SECURITY_MODE}"
+
+            - name: SERVER_SIGN
+              value: "${SERVER_SIGN}"
+
+            - name: SERVER_INTERNAL_HOST
+              value: "${SERVER_INTERNAL_HOST}"
+
+            - name: SERVER_PORT
+              value: "${SERVER_PORT}"

@@ -1,0 +1,146 @@
+#######################################################################
+#  Gufo API Gateway — Example Configuration File
+#  Safe defaults, ENV overrides, and inline documentation
+#######################################################################
+
+#######################################################################
+# SERVER CONFIGURATION
+#######################################################################
+[server]
+# External HTTP port for REST API
+port = "8090"
+
+# Internal gRPC port for gateway reverse service
+grpc_port = "4890"
+
+# Enable debug endpoints (e.g. /exit)
+debug = false
+
+# Hostnames
+domain = ""               # optional public domain (e.g. https://api.example.com)
+internal_host = "gateway" # internal Docker service name or hostname
+ip = "0.0.0.0"            # listen address
+lang = "english"
+
+# Paths
+sysdir   = "/var/gufo/"
+tempdir  = "/var/gufo/templates/"
+filedir  = "/var/gufo/files/"
+plugindir = "/var/gufo/lib/"
+logdir   = "/var/gufo/log/"
+
+# Operational flags
+masterservice   = false
+session         = false
+multiple_db_mode = false
+internal_ssl    = false
+dbcheck         = false
+sentry          = false
+
+#######################################################################
+# SECURITY
+#######################################################################
+[security]
+# Static sign key for internal modules (replace or load from ENV)
+sign_env = "GUFO_SIGN"
+
+# JWT / token secrets (use ENV for sensitive values)
+jwt_secret_env = "GUFO_JWT_SECRET"
+
+mode = "sign"                # options: "sign", "hmac", "mtls"
+hmac_secret = "your_hmac_secret_here"
+
+# for mTLS
+ca_cert = "/etc/gufo/ca.pem"
+cert = "/etc/gufo/server.pem"
+key = "/etc/gufo/server-key.pem"
+max_age = 120                # seconds (used for HMAC expiry)
+
+
+#######################################################################
+# TOKEN SETTINGS
+#######################################################################
+[token]
+# Token expiration (seconds)
+expiretime = 86400              # 24h
+refresh_token_expiration = 2592000 # 30 days
+
+#######################################################################
+# DATABASE CONNECTION
+#######################################################################
+[database]
+type     = "mysql"           # mysql / postgres
+host     = "db"
+port     = "3306"
+dbname   = "gufo"
+user     = "root"
+password_env = "GUFO_DB_PASS"
+charset  = "utf8mb4"
+protocol = "tcp"
+sslmode  = "disable"
+
+#######################################################################
+# REDIS / MEMCACHED (optional caching)
+#######################################################################
+[redis]
+host = "redis://redis"
+
+[memcached]
+host = "memcached"
+port = "11211"
+
+#######################################################################
+# EMAIL SETTINGS
+#######################################################################
+[email]
+host = "smtp.example.com"
+port = "587"
+user = "noreply@example.com"
+address = "noreply@example.com"
+reply = "support@example.com"
+support = "support@example.com"
+title = "Gufo Gateway"
+insecureskipverify = true
+password_env = "GUFO_EMAIL_PASS"
+
+#######################################################################
+# MASTER SERVICE CONFIGURATION
+#######################################################################
+[microservices]
+
+[microservices.masterservice]
+host = "masterservice"
+port = "5300"
+type = "server"
+entrypointversion = "1.0.0"
+cron = false
+
+[microservices.session]
+host = "127.0.0.1"
+port = "4801"
+timeout = "5s"          # ⏱  Default gRPC timeout for requests
+stream_timeout = "2m"   # ⏳ Timeout for file streaming operations
+type = "external"
+
+
+#######################################################################
+# SENTRY (optional telemetry)
+#######################################################################
+[sentry]
+enabled = false
+dsn_env = "GUFO_SENTRY_DSN"
+trace = 1.0
+flush = 5
+tracing = true
+debug = false
+
+#######################################################################
+# GLOBAL SETTINGS
+#######################################################################
+[settings]
+account_creation   = 999999
+activity_creation  = 999999
+change_email       = true
+email_confirmation = true
+registration       = false
+user_creation      = 999999
