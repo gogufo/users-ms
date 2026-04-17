@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	. "users/cron"
-	. "users/global"
-	. "users/version"
-
 	. "github.com/gogufo/gufo-api-gateway/gufodao"
 	pb "github.com/gogufo/gufo-api-gateway/proto/go"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/structpb"
+	. "users/cron"
+	. "users/global"
+	. "users/version"
 )
 
 func StartHeartbeat() {
@@ -48,7 +47,7 @@ func sendHeartbeat() {
 		return
 	}
 
-	// Wrap Struct into Any
+	// Wrap Struct into Any (this becomes Body)
 	anyPayload, err := anypb.New(pbStruct)
 	if err != nil {
 		SetErrorLog(fmt.Sprintf("[HEARTBEAT] anypb error: %v", err))
@@ -57,15 +56,12 @@ func sendHeartbeat() {
 
 	module := "heartbeat"
 	param := "send"
-	method := "POST"
 
 	req := &pb.Request{
-		Module: &module,
-		Param:  &param,
-		Method: &method,
-		Args: map[string]*anypb.Any{
-			"payload": anyPayload,
-		},
+		Module: module,
+		Param:  param,
+		Method: pb.Method_METHOD_POST,
+		Body:   anyPayload,
 	}
 
 	req = Gufosign(req)
